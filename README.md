@@ -207,8 +207,6 @@ TTL 관리에서는 `(expire_at, key)` 튜플을 원소로 쓴다. 튜플은 사
 | `_lru` | `DoublyLinkedList[key]` | 사용 순서. 앞 = 가장 최근 사용(MRU), 뒤 = 가장 오래 전 사용(LRU) |
 | `_used_memory` · `_maxmemory` · `_evicted_keys` | 정수 | 메모리 사용량, 한도(0 = 무제한), 누적 제거 수 |
 
-시각은 시스템 시각 변경의 영향을 받지 않는 `time.monotonic` 으로 얻는다.
-
 ### 6.2 단일 삭제 경로
 
 키 삭제는 모두 `_delete_key(key)` 하나를 거친다. 이 함수가 `_data` · `_expires` · LRU 노드를 한 번에 제거하고
@@ -312,6 +310,5 @@ HashMap 만으로는 사용 순서를 알 수 없고 리스트만으로는 특�
 | `CONFIG SET maxmemory` 로 한도 축소 | 즉시 LRU 제거 | 명령 후 `used_memory ≤ maxmemory` 유지 |
 | 지원하지 않는 INFO 섹션 | 빈 문자열 `""` | 실제 Redis 동작과 동일 |
 | 매우 큰 EXPIRE 초 | `(error) ERR invalid expire time in 'EXPIRE' command` | 밀리초 환산 시 int64 를 넘는 값 (실제 Redis 와 같은 상한) |
-| 시계 | `time.monotonic` | 시스템 시각 변경의 영향을 받지 않음 |
 | 명령어 대소문자 | 구분하지 않음, 에러에는 입력 그대로 표시 | `GET` → `'GET'`, `get` → `'get'` |
 | 정수 파싱 | `-?[0-9]+` + int64 범위 | Redis 의 정수 규칙과 일치 |
