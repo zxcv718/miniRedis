@@ -207,7 +207,7 @@ TTL 관리에서는 `(expire_at, key)` 튜플을 원소로 쓴다. 튜플은 사
 | `_lru` | `DoublyLinkedList[key]` | 사용 순서. 앞 = 가장 최근 사용(MRU), 뒤 = 가장 오래 전 사용(LRU) |
 | `_used_memory` · `_maxmemory` · `_evicted_keys` | 정수 | 메모리 사용량, 한도(0 = 무제한), 누적 제거 수 |
 
-시각은 주입 가능한 `clock` 함수로 얻는다. 기본값은 시스템 시각 변경의 영향을 받지 않는 `time.monotonic` 이다.
+시각은 시스템 시각 변경의 영향을 받지 않는 `time.monotonic` 으로 얻는다.
 
 ### 6.2 단일 삭제 경로
 

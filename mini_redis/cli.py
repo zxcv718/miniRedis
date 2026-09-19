@@ -10,16 +10,13 @@ PROMPT = "mini-redis> "
 EXIT_COMMANDS = ("exit", "quit")
 
 
-def run_repl(executor, read_line=input, write=print):
-    """REPL 루프. ``exit``/``quit`` 또는 EOF(Ctrl-D)/Ctrl-C 로 종료한다.
-
-    ``read_line`` 과 ``write`` 를 주입할 수 있어 테스트에서 표준 입출력 없이 검증 가능하다.
-    """
+def run_repl(executor):
+    """REPL 루프. ``exit``/``quit`` 또는 EOF(Ctrl-D)/Ctrl-C 로 종료한다."""
     while True:
         try:
-            line = read_line(PROMPT)
+            line = input(PROMPT)
         except (EOFError, KeyboardInterrupt):
-            write("")  # 프롬프트 뒤 줄바꿈
+            print()  # 프롬프트 뒤 줄바꿈
             return
 
         stripped = line.strip()
@@ -33,7 +30,7 @@ def run_repl(executor, read_line=input, write=print):
         except Exception as exc:  # 예상치 못한 버그가 있어도 REPL 세션은 유지하고 원인을 보여준다
             output = formatter.error("ERR internal error: {}: {}".format(type(exc).__name__, exc))
         if output:
-            write(output)
+            print(output)
 
 
 def main():

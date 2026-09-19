@@ -53,15 +53,13 @@ class _Entry:
 class MiniRedisStore:
     """String 타입 Key-Value 저장소.
 
-    ``clock`` 은 현재 시각(초, float)을 반환하는 함수다. 기본값은 ``time.monotonic``
-    (시스템 시계 변경의 영향을 받지 않음). 테스트에서는 가짜 시계를 주입해 sleep 없이 검증한다.
+    현재 시각은 ``time.monotonic`` 으로 얻는다 (시스템 시계 변경의 영향을 받지 않음).
     """
 
     # stale 항목이 쌓여 힙이 살아 있는 TTL 수의 2배 + 여유분을 넘으면 재구성한다.
     _HEAP_COMPACT_SLACK = 64
 
-    def __init__(self, clock=time.monotonic):
-        self._clock = clock
+    def __init__(self):
         self._data = HashMap()
         self._expires = HashMap()
         self._ttl_heap = MinHeap()
@@ -91,7 +89,7 @@ class MiniRedisStore:
     def _expire_if_needed(self, key):
         """Lazy 만료: ``key`` 가 만료됐으면 삭제하고 True 를 반환한다."""
         expire_at = self._expires.get(key)
-        if expire_at is not None and self._clock() >= expire_at:
+        if expire_at is not None and time.monotonic() >= expire_at:
             self._delete_key(key)
             return True
         return False
@@ -101,7 +99,7 @@ class MiniRedisStore:
 
         각 pop 은 O(log n), 만료된 키가 없으면 peek 한 번(O(1))으로 끝난다.
         """
-        now = self._clock()
+        now = time.monotonic()
         heap = self._ttl_heap
         while not heap.is_empty() and heap.peek()[0] <= now:
             expire_at, key = heap.pop()
@@ -207,7 +205,7 @@ class MiniRedisStore:
         if seconds <= 0:
             self._delete_key(key)
             return True
-        expire_at = self._clock() + seconds
+        expire_at = time.monotonic() + seconds
         self._expires.put(key, expire_at)
         self._ttl_heap.push((expire_at, key))
         self._compact_ttl_heap_if_needed()
@@ -223,7 +221,7 @@ class MiniRedisStore:
         expire_at = self._expires.get(key)
         if expire_at is None:
             return -1
-        return max(0, int(expire_at - self._clock()))
+        return max(0, int(expire_at - time.monotonic()))
 
     # ================================================================== #
     # 메모리 관리
